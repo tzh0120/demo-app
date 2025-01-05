@@ -22,7 +22,7 @@ export function Navigation() {
               key={link.href}
               href={link.href}
               className={cn(
-                "py-4 text-sm font-medium transition-colors hover:text-primary",
+                "py-4 text-base font-medium transition-colors hover:text-primary",
                 pathname === link.href
                   ? "text-primary border-b-2 border-primary"
                   : "text-muted-foreground"

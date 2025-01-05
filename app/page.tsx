@@ -4,6 +4,7 @@ import { MemoCard } from "@/components/memo-card"
 import { Navigation } from "@/components/navigation"
 import { AddMemoButton } from "@/components/add-memo-button"
 import { useEffect, useState, useRef } from "react"
+import Banner from "@/components/banner"
 
 export default function Home() {
   // Sample memo data with more cards
@@ -147,10 +148,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
+      <Banner />
       <main className="w-full px-4 py-8">
         <div 
           ref={containerRef}
-          className="memo-container relative h-[calc(100vh-6rem)] w-full"
+          className="memo-container relative h-[calc(100vh-12rem)] w-full"
         >
           {positions.map((position, index) => (
             <div

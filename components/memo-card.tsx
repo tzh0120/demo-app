@@ -1,60 +1,33 @@
 "use client"
 
-import { useState } from "react"
-import { MoreHorizontal } from 'lucide-react'
-import { cn } from "@/lib/utils"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Card, CardContent } from "@/components/ui/card"
 
-interface MemoCardProps {
+export function MemoCard({
+  content,
+  note,
+  color,
+  timestamp,
+  emoji,
+}: {
   content: string
-  note?: string
+  note: string
   color: string
   timestamp: string
-  emoji?: string
-}
-
-export function MemoCard({ content, note, color, timestamp, emoji }: MemoCardProps) {
-  const [isHovered, setIsHovered] = useState(false)
-
+  emoji: string
+}) {
   return (
-    <Card 
-      className={cn(
-        "transition-all duration-200 hover:shadow-lg rounded-xl w-64",
-        color,
-        isHovered ? "scale-102" : ""
-      )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <CardHeader className="flex flex-row items-start justify-between space-x-4 pb-2">
-        <span className="text-xl">{emoji}</span>
-        <DropdownMenu>
-          <DropdownMenuTrigger className="hover:bg-black/5 p-1 rounded">
-            <MoreHorizontal className="h-5 w-5 text-gray-500" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem>编辑</DropdownMenuItem>
-            <DropdownMenuItem>删除</DropdownMenuItem>
-            <DropdownMenuItem>分类</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <p className="text-sm font-medium">{content}</p>
-        {note && (
-          <p className="text-sm text-muted-foreground">{note}</p>
-        )}
-        <p className="text-xs text-muted-foreground">{timestamp}</p>
+    <Card className={`w-[300px] ${color} border-none transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-md hover:-translate-y-1`}>
+      <CardContent className="pt-6">
+        <div className="space-y-4">
+          <div className="flex items-start gap-4">
+            <span className="text-3xl">{emoji}</span>
+            <div className="space-y-1">
+              <p className="text-base leading-relaxed">{content}</p>
+              <div className="text-sm text-gray-500">{timestamp}</div>
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 leading-relaxed">{note}</p>
+        </div>
       </CardContent>
     </Card>
   )
