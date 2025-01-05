@@ -1,101 +1,176 @@
-import Image from "next/image";
+"use client"
+
+import { MemoCard } from "@/components/memo-card"
+import { Navigation } from "@/components/navigation"
+import { AddMemoButton } from "@/components/add-memo-button"
+import { useEffect, useState, useRef } from "react"
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  // Sample memo data with more cards
+  const memos = [
+    {
+      id: 1,
+      content: "读完了村上春树的《挪威的森林》",
+      note: "书中说：每个人都有属于自己的生活，我们不能寄求于他人，但求无愧于心。这句话让我思考了很久。",
+      color: "bg-pink-50",
+      timestamp: "2024-01-05 10:30",
+      emoji: "📚"
+    },
+    {
+      id: 2,
+      content: "和朋友一起喝咖啡聊天，才发现原来我们都在经历着相似的困惑和成长。",
+      note: "分享让快乐加倍，也让烦恼减半。今天的拿铁特别香醇。",
+      color: "bg-green-50",
+      timestamp: "2024-01-05 14:20",
+      emoji: "☕"
+    },
+    {
+      id: 3,
+      content: "清晨在公园里散步，看到一群老人在打太极，动作缓慢却充满力量。",
+      note: "生活的节奏不必总是那么快，慢下来也是一种智慧。",
+      color: "bg-blue-50",
+      timestamp: "2024-01-05 08:15",
+      emoji: "🌅"
+    },
+    {
+      id: 4,
+      content: "今天学会了一道新菜，红烧茄子。",
+      note: "虽然卖相不是很好，但是味道还不错。慢慢来，总会越来越好的。",
+      color: "bg-purple-50",
+      timestamp: "2024-01-06 18:45",
+      emoji: "🍆"
+    },
+    {
+      id: 5,
+      content: "终于完成了那个一直拖延的项目！",
+      note: "感觉整个人都轻松了。下次要记住，开始永远是最难的部分。",
+      color: "bg-yellow-50",
+      timestamp: "2024-01-07 22:10",
+      emoji: "🎉"
+    },
+    {
+      id: 6,
+      content: "今天的日落特别美，整个天空都是粉红色的。",
+      note: "有时候，我们需要停下来欣赏生活中的小确幸。",
+      color: "bg-red-50",
+      timestamp: "2024-01-08 19:30",
+      emoji: "🌅"
+    },
+    {
+      id: 7,
+      content: "开始学习一门新语言：西班牙语",
+      note: "Hola! Como estas? 学习新东西的感觉真好！",
+      color: "bg-indigo-50",
+      timestamp: "2024-01-09 10:00",
+      emoji: "🇪🇸"
+    },
+    {
+      id: 8,
+      content: "今天遇到了一只可爱的小狗，让我的心情瞬间变好了。",
+      note: "有时候，快乐就是这么简单。",
+      color: "bg-orange-50",
+      timestamp: "2024-01-10 15:20",
+      emoji: "🐶"
+    }
+  ]
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // 使用 state 来存储位置信息
+  const [positions, setPositions] = useState<Array<{
+    left: string;
+    top: string;
+    rotation: number;
+  }>>([]);
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const calculatePositions = () => {
+      if (!containerRef.current) return;
+      
+      const safeMargin = 10; // 边距（像素）
+      const cardWidth = 300; // 卡片宽度（像素）
+      const cardHeight = 200; // 卡片高度（像素）
+      const minDistance = 150; // 卡片间最小距离（像素）
+
+      const containerWidth = containerRef.current.clientWidth;
+      const containerHeight = containerRef.current.clientHeight;
+
+      const newPositions: Array<{left: string; top: string; rotation: number}> = [];
+
+      const isOverlapping = (x: number, y: number) => {
+        return newPositions.some(pos => {
+          const posX = parseFloat(pos.left) * containerWidth / 100;
+          const posY = parseFloat(pos.top) * containerHeight / 100;
+          const distance = Math.sqrt(
+            Math.pow(x - posX, 2) + Math.pow(y - posY, 2)
+          );
+          return distance < minDistance;
+        });
+      };
+
+      memos.forEach(() => {
+        let attempts = 0;
+        let position;
+        
+        do {
+          const leftPx = safeMargin + Math.random() * (containerWidth - cardWidth - 2 * safeMargin);
+          const topPx = safeMargin + Math.random() * (containerHeight - cardHeight - 2 * safeMargin);
+          
+          if (!isOverlapping(leftPx, topPx) || attempts > 100) {
+            position = {
+              left: `${(leftPx / containerWidth) * 100}%`,
+              top: `${(topPx / containerHeight) * 100}%`,
+              rotation: Math.random() * 8 - 4,
+            };
+          }
+          attempts++;
+        } while (!position && attempts <= 100);
+
+        if (position) {
+          newPositions.push(position);
+        }
+      });
+
+      setPositions(newPositions);
+    };
+
+    // 延迟执行以确保 DOM 已加载
+    const timer = setTimeout(calculatePositions, 0);
+    window.addEventListener('resize', calculatePositions);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', calculatePositions);
+    };
+  }, [memos.length]);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+      <main className="w-full px-4 py-8">
+        <div 
+          ref={containerRef}
+          className="memo-container relative h-[calc(100vh-6rem)] w-full"
+        >
+          {positions.map((position, index) => (
+            <div
+              key={memos[index].id}
+              className="absolute transition-all duration-500 ease-in-out hover:z-50"
+              style={{
+                left: position.left,
+                top: position.top,
+                transform: `rotate(${position.rotation}deg)`,
+                opacity: 0,
+                animation: `fadeIn 0.5s ease-out ${index * 0.1}s forwards`,
+              }}
+            >
+              <MemoCard {...memos[index]} />
+            </div>
+          ))}
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <AddMemoButton />
     </div>
-  );
+  )
 }
+
